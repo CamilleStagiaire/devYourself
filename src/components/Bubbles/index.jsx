@@ -1,6 +1,6 @@
 import Bubble from '../Bubble';
 
-function Bubbles() {
+function Bubbles({ darkMode }) {
   return (
     <div className="bubble-container">
       {Array.from({ length: 20 }, (_, i) => {
@@ -13,11 +13,13 @@ function Bubbles() {
             size={size}
             initialX={initialX}
             initialY={initialY}
+            darkMode={darkMode}
           />
         );
       })}
     </div>
   );
 }
+
 
 export default Bubbles;

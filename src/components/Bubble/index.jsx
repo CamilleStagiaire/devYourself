@@ -1,76 +1,67 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ReactComponent as BulbIcon } from '../../assets/bulb.svg';
 import { ReactComponent as SwirlIcon } from '../../assets/swirl.svg';
 
 function Bubble({ size, darkMode }) {
   const [isClicked, setIsClicked] = useState(false);
-  const containerRef = useRef(null); // Conteneur pour la bulle et le SVG
-  const bubbleRef = useRef(null); // Référence pour la bulle
-  const iconRef = useRef(null); // Référence pour l'icône SVG
-  
-
-  const animateBubble = useCallback(() => {
-    if (!containerRef.current || isClicked) return;
-
-    gsap.to(containerRef.current, {
-      duration: 60 + Math.random() * 20,
-      repeat: -1,
-      yoyo: true,
-      ease: 'linear',
-      x: () => Math.random() * (window.innerWidth - size),
-      y: () => Math.random() * (window.innerHeight - size),
-    });
-  }, [isClicked, size]);
+  const [secondClick, setSecondClick] = useState(false);
+  const containerRef = useRef(null);
+  const bubbleRef = useRef(null);
+  const iconRef = useRef(null);
 
   useEffect(() => {
-    animateBubble();
-  }, [animateBubble]);
+    if (!containerRef.current) return;
+
+    const startContinuousAnimation = () => {
+      gsap.to(containerRef.current, {
+        duration: 40 + Math.random() * 120,
+        repeat: -1,
+        yoyo: true,
+        ease: 'linear',
+        x: () => Math.random() * (window.innerWidth - size),
+        y: () => Math.random() * (window.innerHeight - size),
+      });
+    };
+
+    gsap.to(containerRef.current, {
+      duration: 2,
+      ease: 'power1.out',
+      x: () => Math.random() * (window.innerWidth - size),
+      y: () => Math.random() * (window.innerHeight - size),
+      onComplete: startContinuousAnimation,
+    });
+  }, [size]);
 
   const handleClick = () => {
-    setIsClicked(!isClicked);
-    gsap.killTweensOf(containerRef.current);
-
-    // Animation pour la bulle
-    gsap.to(bubbleRef.current, { opacity: isClicked ? 1 : 0, scale: isClicked ? 1 : 0, duration: 0.5 });
-
-    // Animation pour le SVG
-    if (iconRef.current) {
-      gsap.to(iconRef.current, { opacity: isClicked ? 0 : 1, scale: isClicked ? 0 : 1, duration: 0.5 });
+    setIsClicked(true);
+    if (!secondClick) {
+      // Premier clic: montre le SVG, cache la bulle
+      gsap.to(bubbleRef.current, { opacity: 0, scale: 0, duration: 0.5 });
+      gsap.to(iconRef.current, { opacity: 1, scale: 1, duration: 0.5 });
+     
+    } else {
+      // Second clic: montre la bulle, cache le SVG
+      gsap.to(bubbleRef.current, { opacity: 1, scale: 1, duration: 0.5 });
+      gsap.to(iconRef.current, { opacity: 0, scale: 0, duration: 0.5 });
+      setSecondClick(false);
     }
   };
 
-const iconSize = `${size * 3}px`;
-const svgStyle = {
-  width: `${size * 3}px`,
-  height: `${size * 3}px`
-};
-
+  const handleClickSvg = (event) => {
+    event.stopPropagation();
+    setSecondClick(true);
+    handleClick();
+  };
 
   return (
-    <div ref={containerRef} style={{ position: 'absolute', width: `${size}px`, height: `${size}px`, cursor: 'pointer' }} onClick={handleClick}>
-      <div
-        ref={bubbleRef}
-        style={{
-          borderRadius: '50%',
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#175e7f',
-          opacity: 1,
-          transform: 'scale(1)',
-        }}
-      />
-      <div ref={iconRef} style={{ position: 'absolute', top: 0, left: 0, width: `${iconSize}px`, height: `${iconSize}px`, opacity: 0, transform: 'scale(0)' }}>
-      {isClicked && (
-        <div style={{ /* ... */ }}>
-          {darkMode ? <SwirlIcon style={svgStyle} /> : <BulbIcon style={svgStyle} />}
-        </div>
-      )}
+    <div className="bubble" ref={containerRef} style={{ width: `${size}px`, height: `${size}px` }} onClick={handleClick}>
+      <div className="bubble__inner" ref={bubbleRef} />
+      <div className="bubble__icon" ref={iconRef} onClick={handleClickSvg}>
+        {isClicked && (darkMode ? <SwirlIcon style={{ width: `${size * 3}px`, height: `${size * 3}px` }} /> : <BulbIcon style={{ width: `${size * 3}px`, height: `${size * 3}px` }} />)}
       </div>
     </div>
   );
 }
 
 export default Bubble;
-
-

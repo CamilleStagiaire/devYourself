@@ -1,0 +1,10 @@
+body {
+    background-image: url('../assets/background.svg'); 
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  background-attachment: fixed;
+  }
+
+  body.dark-mode {
+    background-image: url('../assets/backgroundNight.svg'); 
+  }

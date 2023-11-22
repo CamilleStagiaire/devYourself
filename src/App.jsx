@@ -1,13 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import Header from './components/Layout/Header';
-import Bubbles from './components/Bubbles'; // Assurez-vous d'importer Bubbles
+import Bubbles from './components/Bubbles';
 import Home from './pages/Home';
 import Project from './pages/Project';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import Error from './pages/Error';
+import './sass/style.scss';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -24,21 +25,67 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  useEffect(() => {
+   
+    gsap.registerPlugin(ScrollTrigger);
+  
+    const sections = ['.home', '.project', '.about', '.contact'];
+  
+    sections.forEach((section) => {
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        pin: true,
+        pinSpacing: false,
+        scrub: 1,
+       
+      });
+    });
+
+    // gsap.to('.bubble-container', {
+    //   scrollTrigger: {
+    //     trigger: ".page-container",
+    //     start: "top top",
+    //     end: "bottom bottom",
+    //     scrub: true
+    //   },
+    //   rotation: () => {
+    //     const scrollDirection = ScrollTrigger.direction;
+    //     return scrollDirection === 1 ? 360 : -360; // Tourner vers la droite ou la gauche
+    //   }
+    // });
+  }, []);
+  
+
   return (
-    <Router>
+    <div className="App">
       <Header />
-      <Bubbles darkMode={darkMode} />
-      <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
+      <div className="toggle-dark-mode-button">
         <button onClick={toggleDarkMode}>Toggle Dark Mode</button>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/project" element={<Project/>} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<Error />} />
-        </Routes>
       </div>
-    </Router>
+      <Bubbles darkMode={darkMode} />
+      <div className="page-container">
+      <div className="home">
+          
+          <Home />
+        </div>
+        <div className="section-divider"></div>
+        <div className="project">
+       
+          <Project />
+        </div>
+        <div className="about">
+         
+          <About />
+        </div>
+        <div className="contact">
+         
+          <Contact />
+        </div>
+      </div>
+      
+    </div>
   );
 }
 
